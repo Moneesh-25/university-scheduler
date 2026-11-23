@@ -422,23 +422,3 @@ cd university-scheduler\backend
 
 ---
 
-## 13. M.Tech IT Mini-Project Viva Voce & Presentation Guide
-
-### Key Technical Questions & Answers for Viva:
-
-**Q1: Why is course timetabling considered NP-Complete?**
-> *Answer:* Course timetabling reduces directly to the **Graph Coloring Problem** and **Exact Cover by 3-Sets (XC3)**. Finding a timetable of length $k$ slots without clashes is equivalent to finding a valid $k$-coloring of an arbitrary graph, which Richard Karp proved to be NP-complete in 1972. As the number of courses, rooms, and constraints grows, the search space expands factorially ($\mathcal{O}(d^n)$).
-
-**Q2: What are the distinct roles of MRV and LCV heuristics in your Backtracking algorithm?**
-> *Answer:* 
-> - **MRV (Minimum Remaining Values)** decides *which variable to assign next* by choosing the course session with the smallest candidate domain of feasible slots. This minimizes the branching factor at the top of the search tree and triggers early backtrack failures.
-> - **LCV (Least Constraining Value)** decides *which value (time slot/room) to assign first* to the chosen variable. It picks the value that leaves the maximum number of feasible options open for neighboring variables, maximizing the probability of finding a solution along the first branch.
-
-**Q3: How does your Welsh-Powell implementation differ from Backtracking?**
-> *Answer:* Welsh-Powell is a greedy graph coloring algorithm. It sorts vertices by descending degree (number of conflicting courses) and colors them sequentially with the lowest available color. It is $\mathcal{O}(V^2)$ and executes in ~6 ms, but cannot backtrack when an assignment leads to an impossible state later. Backtracking explores the search space systematically with recursion, pruning, and backtracking, guaranteeing a conflict-free solution (100% of 32 sessions) where greedy coloring scheduled 28 sessions.
-
-**Q4: How do you prevent deadlocks and race conditions in `BoundedTaskQueue`?**
-> *Answer:* `BoundedTaskQueue` uses a single `ReentrantLock` ensuring mutual exclusion. Synchronization between producers and consumers is decoupled using two distinct `Condition` objects: `notFull` and `notEmpty`. When the queue is full, producer threads invoke `notFull.await()`, releasing the lock until a consumer removes an item and calls `notFull.signal()`. This eliminates busy-waiting, CPU spinning, and race conditions.
-
-**Q5: What is the architectural purpose of `ConcurrentScheduleStack`?**
-> *Answer:* In a multi-user university administrative system, multiple department heads or scheduling officers may view timetables while an administrator modifies or rolls back a batch. Using `ReentrantReadWriteLock` allows unlimited concurrent read operations (`readLock`) with zero contention, while exclusive write access (`writeLock`) is acquired only during push and pop (undo) operations.
