@@ -28,7 +28,7 @@ export default function Navbar({ currentRole, setCurrentRole, activePage }) {
   }, []);
 
   return (
-    <header className="bg-slate-900 text-white border-b border-slate-800 px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-md">
+    <header className="bg-slate-900 text-white border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0 z-30 shadow-md">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">
           <CalendarIcon className="w-6 h-6" />

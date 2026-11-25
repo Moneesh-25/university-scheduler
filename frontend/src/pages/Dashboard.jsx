@@ -13,6 +13,7 @@ import {
   RefreshCwIcon,
   BarChartIcon,
   CpuIcon,
+  DownloadIcon,
 } from '../components/Icons';
 
 export default function Dashboard({ setActivePage, currentRole = 'ADMIN' }) {

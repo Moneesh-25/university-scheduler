@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -46,21 +46,30 @@ export default function App() {
     }
   };
 
+  const mainRef = useRef(null);
+
   useEffect(() => {
     checkConflicts();
     const interval = setInterval(checkConflicts, 30000);
     return () => clearInterval(interval);
   }, [activePage]);
 
+  // Reset scroll position to top whenever activePage or currentRole changes
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [activePage, currentRole]);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-50 font-sans">
       <Navbar
         currentRole={currentRole}
         setCurrentRole={handleRoleChange}
         activePage={activePage}
       />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar
           activePage={activePage}
           setActivePage={setActivePage}
@@ -68,53 +77,55 @@ export default function App() {
           currentRole={currentRole}
         />
 
-        <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-4">
-          {/* Persona Banner Banner */}
-          {currentRole !== 'ADMIN' && (
-            <div className={`px-4 py-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
-              currentRole === 'FACULTY'
-                ? 'bg-amber-50/80 border-amber-200 text-amber-900'
-                : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-            }`}>
-              <div className="flex items-center gap-2">
-                <span className="font-bold">
-                  {currentRole === 'FACULTY' ? '👨‍🏫 Faculty View Mode' : '🎓 Student Portal Mode'}
-                </span>
-                <span className="text-slate-600 hidden sm:inline">
-                  {currentRole === 'FACULTY'
-                    ? '— Showing teaching schedules, classroom locations, and examination invigilation duties.'
-                    : '— Showing cohort timetable, lecture hours, and semester examination dates.'}
-                </span>
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="max-w-7xl mx-auto space-y-4 pb-12">
+            {/* Persona Banner */}
+            {currentRole !== 'ADMIN' && (
+              <div className={`px-4 py-2.5 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                currentRole === 'FACULTY'
+                  ? 'bg-amber-50/80 border-amber-200 text-amber-900'
+                  : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">
+                    {currentRole === 'FACULTY' ? '👨‍🏫 Faculty View Mode' : '🎓 Student Portal Mode'}
+                  </span>
+                  <span className="text-slate-600 hidden sm:inline">
+                    {currentRole === 'FACULTY'
+                      ? '— Showing teaching schedules, classroom locations, and examination invigilation duties.'
+                      : '— Showing cohort timetable, lecture hours, and semester examination dates.'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleRoleChange('ADMIN')}
+                  className="underline font-semibold text-slate-700 hover:text-black shrink-0 ml-2"
+                >
+                  Switch to Admin Mode
+                </button>
               </div>
-              <button
-                onClick={() => handleRoleChange('ADMIN')}
-                className="underline font-semibold text-slate-700 hover:text-black shrink-0 ml-2"
-              >
-                Switch to Admin Mode
-              </button>
-            </div>
-          )}
+            )}
 
-          {activePage === 'dashboard' && <Dashboard setActivePage={setActivePage} currentRole={currentRole} />}
-          {activePage === 'faculty' && <FacultyManagement />}
-          {activePage === 'courses' && <CourseManagement />}
-          {activePage === 'classrooms' && <ClassroomManagement />}
-          {activePage === 'groups' && <StudentGroupManagement />}
-          {activePage === 'slots' && <TimeSlotConfig />}
-          {activePage === 'generate' && <GenerateTimetable setActivePage={setActivePage} />}
-          {activePage === 'timetable' && <TimetableGrid currentRole={currentRole} />}
-          {activePage === 'exams' && <ExaminationScheduler currentRole={currentRole} />}
-          {activePage === 'conflicts' && <ConflictDetection setActivePage={setActivePage} />}
-          {activePage === 'benchmark' && <AlgorithmComparison />}
-          {activePage === 'concurrency' && <ConcurrencyDemo />}
-          {activePage === 'reports' && <ReportsExport currentRole={currentRole} />}
-          {activePage === 'login' && (
-            <Login
-              currentRole={currentRole}
-              setCurrentRole={handleRoleChange}
-              onLoginSuccess={() => setActivePage('dashboard')}
-            />
-          )}
+            {activePage === 'dashboard' && <Dashboard setActivePage={setActivePage} currentRole={currentRole} />}
+            {activePage === 'faculty' && <FacultyManagement />}
+            {activePage === 'courses' && <CourseManagement />}
+            {activePage === 'classrooms' && <ClassroomManagement />}
+            {activePage === 'groups' && <StudentGroupManagement />}
+            {activePage === 'slots' && <TimeSlotConfig />}
+            {activePage === 'generate' && <GenerateTimetable setActivePage={setActivePage} />}
+            {activePage === 'timetable' && <TimetableGrid currentRole={currentRole} />}
+            {activePage === 'exams' && <ExaminationScheduler currentRole={currentRole} />}
+            {activePage === 'conflicts' && <ConflictDetection setActivePage={setActivePage} />}
+            {activePage === 'benchmark' && <AlgorithmComparison />}
+            {activePage === 'concurrency' && <ConcurrencyDemo />}
+            {activePage === 'reports' && <ReportsExport currentRole={currentRole} />}
+            {activePage === 'login' && (
+              <Login
+                currentRole={currentRole}
+                setCurrentRole={handleRoleChange}
+                onLoginSuccess={() => setActivePage('dashboard')}
+              />
+            )}
+          </div>
         </main>
       </div>
     </div>

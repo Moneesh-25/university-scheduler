@@ -114,7 +114,7 @@ export default function Sidebar({ activePage, setActivePage, conflictCount = 0, 
   }[currentRole] || { label: 'User', desc: 'Standard Access', badgeBg: 'bg-slate-700 text-slate-300', dot: 'bg-slate-400' };
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 min-h-[calc(100vh-61px)] select-none">
+    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 overflow-y-auto select-none">
       <div className="p-4 space-y-6">
         {/* Active Persona Pill in Sidebar */}
         <div className={`p-3 rounded-xl border ${roleMeta.badgeBg} space-y-1`}>
