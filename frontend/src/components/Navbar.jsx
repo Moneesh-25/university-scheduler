@@ -60,19 +60,24 @@ export default function Navbar({ currentRole, setCurrentRole, activePage }) {
         </div>
 
         {/* Role Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700">
-          <span className="text-xs text-slate-400 pl-2 pr-1 font-medium">Role:</span>
-          {['ADMIN', 'FACULTY', 'STUDENT'].map((role) => (
+        <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700 shadow-inner">
+          <span className="text-xs text-slate-400 pl-2 pr-1 font-semibold">Persona:</span>
+          {[
+            { id: 'ADMIN', label: 'Admin', activeClass: 'bg-blue-600 text-white shadow-md shadow-blue-500/30' },
+            { id: 'FACULTY', label: 'Faculty', activeClass: 'bg-amber-600 text-white shadow-md shadow-amber-500/30' },
+            { id: 'STUDENT', label: 'Student', activeClass: 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30' },
+          ].map((r) => (
             <button
-              key={role}
-              onClick={() => setCurrentRole(role)}
-              className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${
-                currentRole === role
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
+              key={r.id}
+              onClick={() => setCurrentRole(r.id)}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                currentRole === r.id
+                  ? r.activeClass
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
               }`}
+              title={`Switch access persona to ${r.label}`}
             >
-              {role === 'ADMIN' ? 'Admin' : role === 'FACULTY' ? 'Faculty' : 'Student'}
+              {r.label}
             </button>
           ))}
         </div>

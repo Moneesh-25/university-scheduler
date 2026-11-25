@@ -11,7 +11,7 @@ import {
   BuildingIcon,
 } from '../components/Icons';
 
-export default function ExaminationScheduler() {
+export default function ExaminationScheduler({ currentRole = 'ADMIN' }) {
   const [exams, setExams] = useState([]);
   const [courses, setCourses] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
@@ -150,56 +150,76 @@ export default function ExaminationScheduler() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={handleAutoGenerate}
-            disabled={generating}
-            className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 shadow-sm"
-          >
-            <PlayIcon className="w-4 h-4" />
-            {generating ? 'Scheduling...' : 'Auto-Generate Exam Timetable'}
-          </button>
-          <button onClick={() => setModalOpen(true)} className="btn-secondary text-xs">
-            <PlusIcon className="w-4 h-4" />
-            Schedule Single Exam
-          </button>
-          <button onClick={handleClear} className="btn-danger text-xs">
-            <TrashIcon className="w-4 h-4" />
-            Clear All
-          </button>
+          {currentRole === 'ADMIN' && (
+            <>
+              <button
+                onClick={handleAutoGenerate}
+                disabled={generating}
+                className="btn-primary text-xs bg-amber-600 hover:bg-amber-700 shadow-sm"
+              >
+                <PlayIcon className="w-4 h-4" />
+                {generating ? 'Scheduling...' : 'Auto-Generate Exam Timetable'}
+              </button>
+              <button onClick={() => setModalOpen(true)} className="btn-secondary text-xs">
+                <PlusIcon className="w-4 h-4" />
+                Schedule Single Exam
+              </button>
+              <button onClick={handleClear} className="btn-danger text-xs">
+                <TrashIcon className="w-4 h-4" />
+                Clear All
+              </button>
+            </>
+          )}
           <button onClick={loadData} className="btn-secondary text-xs" title="Refresh">
             <RefreshCwIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
 
+      {/* Role Tip Banner */}
+      {currentRole === 'FACULTY' && (
+        <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-center gap-2 shadow-sm">
+          <span className="text-base">👨‍🏫</span>
+          <span>Faculty Invigilation View: Check the <strong>Invigilator</strong> column to review the examination sessions and halls you are assigned to supervise.</span>
+        </div>
+      )}
+      {currentRole === 'STUDENT' && (
+        <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-center gap-2 shadow-sm">
+          <span className="text-base">🎓</span>
+          <span>Student Examination Portal: Filter by your cohort below to inspect examination dates, starting times, and room seatings.</span>
+        </div>
+      )}
+
       {/* Auto-Generation Parameter Controls */}
-      <div className="app-card p-4 bg-amber-50/40 border-amber-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center text-xs">
-        <div>
-          <label className="block text-slate-700 font-semibold mb-1">Examination Start Date:</label>
-          <input
-            type="date"
-            value={genStartDate}
-            onChange={(e) => setGenStartDate(e.target.value)}
-            className="form-input text-xs"
-          />
+      {currentRole === 'ADMIN' && (
+        <div className="app-card p-4 bg-amber-50/40 border-amber-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center text-xs">
+          <div>
+            <label className="block text-slate-700 font-semibold mb-1">Examination Start Date:</label>
+            <input
+              type="date"
+              value={genStartDate}
+              onChange={(e) => setGenStartDate(e.target.value)}
+              className="form-input text-xs"
+            />
+          </div>
+          <div>
+            <label className="block text-slate-700 font-semibold mb-1">Minimum Spacing Between Exams (Days):</label>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={minSpacing}
+              onChange={(e) => setMinSpacing(parseInt(e.target.value) || 1)}
+              className="form-input text-xs"
+            />
+          </div>
+          <div className="pt-4">
+            <span className="text-[11px] text-slate-500">
+              Automatically prevents student double-bookings and distributes invigilation duties evenly across faculty.
+            </span>
+          </div>
         </div>
-        <div>
-          <label className="block text-slate-700 font-semibold mb-1">Minimum Spacing Between Exams (Days):</label>
-          <input
-            type="number"
-            min="1"
-            max="5"
-            value={minSpacing}
-            onChange={(e) => setMinSpacing(parseInt(e.target.value) || 1)}
-            className="form-input text-xs"
-          />
-        </div>
-        <div className="pt-4">
-          <span className="text-[11px] text-slate-500">
-            Automatically prevents student double-bookings and distributes invigilation duties evenly across faculty.
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Filters Bar */}
       <div className="app-card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between text-xs">
@@ -297,13 +317,15 @@ export default function ExaminationScheduler() {
                       {ex.durationMinutes} mins
                     </td>
                     <td className="p-3.5 text-right">
-                      <button
-                        onClick={() => handleDelete(ex.id, ex.courseName)}
-                        className="p-1.5 rounded hover:bg-rose-100 text-slate-600 hover:text-rose-600"
-                        title="Delete exam"
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </button>
+                      {currentRole === 'ADMIN' && (
+                        <button
+                          onClick={() => handleDelete(ex.id, ex.courseName)}
+                          className="p-1.5 rounded hover:bg-rose-100 text-slate-600 hover:text-rose-600"
+                          title="Delete exam"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

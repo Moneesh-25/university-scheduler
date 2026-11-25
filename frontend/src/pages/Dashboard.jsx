@@ -15,7 +15,7 @@ import {
   CpuIcon,
 } from '../components/Icons';
 
-export default function Dashboard({ setActivePage }) {
+export default function Dashboard({ setActivePage, currentRole = 'ADMIN' }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,21 +75,62 @@ export default function Dashboard({ setActivePage }) {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="app-card p-6 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-slate-800">
+      <div className={`app-card p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-slate-800 transition-all ${
+        currentRole === 'FACULTY'
+          ? 'bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900'
+          : currentRole === 'STUDENT'
+          ? 'bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900'
+          : 'bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900'
+      }`}>
         <div className="space-y-1">
-          <h2 className="text-xl font-bold tracking-tight">University Scheduling & Timetabling Dashboard</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold tracking-tight">
+              {currentRole === 'FACULTY'
+                ? 'Faculty Academic Workload & Schedule Portal'
+                : currentRole === 'STUDENT'
+                ? 'Student Academic Timetable & Exam Portal'
+                : 'University Scheduling & Timetabling Dashboard'}
+            </h2>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              currentRole === 'FACULTY'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                : currentRole === 'STUDENT'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+            }`}>
+              {currentRole} Access
+            </span>
+          </div>
           <p className="text-xs text-slate-300 max-w-2xl">
-            Automated conflict-free course timetabling and examination scheduler powered by <strong>Constraint Backtracking (MRV + LCV)</strong> and <strong>Greedy Graph Coloring (Welsh-Powell)</strong>.
+            {currentRole === 'FACULTY'
+              ? 'Review your teaching timetable, weekly lecture hours, room venues, and examination invigilation duties.'
+              : currentRole === 'STUDENT'
+              ? 'Check your cohort class schedule, laboratory session timings, room locations, and upcoming exam dates.'
+              : 'Automated conflict-free course timetabling and examination scheduler powered by Constraint Backtracking (MRV + LCV) and Welsh-Powell Graph Coloring.'}
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => setActivePage('generate')}
-            className="btn-primary shadow-lg shadow-blue-600/30 font-semibold"
-          >
-            <PlayIcon className="w-4 h-4" />
-            Generate Schedule
-          </button>
+          {currentRole === 'ADMIN' ? (
+            <button
+              onClick={() => setActivePage('generate')}
+              className="btn-primary shadow-lg shadow-blue-600/30 font-semibold"
+            >
+              <PlayIcon className="w-4 h-4" />
+              Generate Schedule
+            </button>
+          ) : (
+            <button
+              onClick={() => setActivePage('timetable')}
+              className={`px-4 py-2 rounded-lg font-semibold text-xs flex items-center gap-2 text-white shadow-lg transition-all ${
+                currentRole === 'FACULTY'
+                  ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/30'
+                  : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+              }`}
+            >
+              <CalendarIcon className="w-4 h-4" />
+              View Timetable
+            </button>
+          )}
           <button
             onClick={loadStats}
             className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
@@ -168,9 +209,11 @@ export default function Dashboard({ setActivePage }) {
               <CalendarIcon className="w-4 h-4 text-blue-600" />
               Recent Scheduling Jobs
             </h3>
-            <button onClick={() => setActivePage('generate')} className="text-xs text-blue-600 hover:underline">
-              Run New Job
-            </button>
+            {currentRole === 'ADMIN' && (
+              <button onClick={() => setActivePage('generate')} className="text-xs text-blue-600 hover:underline">
+                Run New Job
+              </button>
+            )}
           </div>
 
           {stats?.recentJobs?.length === 0 ? (
@@ -207,7 +250,7 @@ export default function Dashboard({ setActivePage }) {
           <div className="border-b pb-3">
             <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
               <PlayIcon className="w-4 h-4 text-indigo-600" />
-              Core Academic Modules
+              {currentRole === 'ADMIN' ? 'Core Academic Modules' : 'Available Portal Views'}
             </h3>
           </div>
 
@@ -218,7 +261,7 @@ export default function Dashboard({ setActivePage }) {
             >
               <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
                 <CalendarIcon className="w-4 h-4 text-blue-600" />
-                Weekly Grid
+                Weekly Timetable
               </div>
               <p className="text-[11px] text-slate-500">View matrix of days vs time slots by group or faculty</p>
             </button>
@@ -229,32 +272,49 @@ export default function Dashboard({ setActivePage }) {
             >
               <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
                 <LayerIcon className="w-4 h-4 text-amber-600" />
-                Exam Scheduler
+                {currentRole === 'FACULTY' ? 'Invigilation Duties' : 'Exam Schedule'}
               </div>
-              <p className="text-[11px] text-slate-500">Generate exam timetables with invigilator assignments</p>
+              <p className="text-[11px] text-slate-500">
+                {currentRole === 'FACULTY' ? 'Inspect assigned examination supervision duties' : 'Inspect semester examination dates and venues'}
+              </p>
             </button>
 
-            <button
-              onClick={() => setActivePage('benchmark')}
-              className="p-3 rounded-lg border border-slate-200 hover:border-purple-400 hover:bg-purple-50/40 text-left transition-all"
-            >
-              <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
-                <BarChartIcon className="w-4 h-4 text-purple-600" />
-                Algorithm Analytics
-              </div>
-              <p className="text-[11px] text-slate-500">Benchmark Graph Coloring vs Backtracking CSP</p>
-            </button>
+            {currentRole === 'ADMIN' ? (
+              <>
+                <button
+                  onClick={() => setActivePage('benchmark')}
+                  className="p-3 rounded-lg border border-slate-200 hover:border-purple-400 hover:bg-purple-50/40 text-left transition-all"
+                >
+                  <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
+                    <BarChartIcon className="w-4 h-4 text-purple-600" />
+                    Algorithm Analytics
+                  </div>
+                  <p className="text-[11px] text-slate-500">Benchmark Graph Coloring vs Backtracking CSP</p>
+                </button>
 
-            <button
-              onClick={() => setActivePage('concurrency')}
-              className="p-3 rounded-lg border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left transition-all"
-            >
-              <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
-                <CpuIcon className="w-4 h-4 text-emerald-600" />
-                Concurrency Engine
-              </div>
-              <p className="text-[11px] text-slate-500">Monitor high-throughput BoundedTaskQueue & ConcurrentStack</p>
-            </button>
+                <button
+                  onClick={() => setActivePage('concurrency')}
+                  className="p-3 rounded-lg border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 text-left transition-all"
+                >
+                  <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
+                    <CpuIcon className="w-4 h-4 text-emerald-600" />
+                    Concurrency Engine
+                  </div>
+                  <p className="text-[11px] text-slate-500">Monitor high-throughput BoundedTaskQueue & ConcurrentStack</p>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setActivePage('reports')}
+                className="col-span-2 p-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 text-left transition-all"
+              >
+                <div className="font-semibold text-slate-800 flex items-center gap-1.5 mb-1">
+                  <DownloadIcon className="w-4 h-4 text-indigo-600" />
+                  Export & Reports
+                </div>
+                <p className="text-[11px] text-slate-500">Download formatted academic timetables and utilization summaries</p>
+              </button>
+            )}
           </div>
         </div>
       </div>

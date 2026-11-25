@@ -9,7 +9,7 @@ import {
   SearchIcon,
 } from '../components/Icons';
 
-export default function TimetableGrid() {
+export default function TimetableGrid({ currentRole = 'ADMIN' }) {
   const [entries, setEntries] = useState([]);
   const [slots, setSlots] = useState([]);
   const [studentGroups, setStudentGroups] = useState([]);
@@ -144,19 +144,37 @@ export default function TimetableGrid() {
           <button onClick={handlePrint} className="btn-secondary text-xs">
             Print / PDF
           </button>
-          <button onClick={handleUndo} className="btn-secondary text-xs text-amber-700 hover:bg-amber-50">
-            <UndoIcon className="w-4 h-4" />
-            Undo Batch
-          </button>
-          <button onClick={handleClear} className="btn-danger text-xs">
-            <TrashIcon className="w-4 h-4" />
-            Clear
-          </button>
+          {currentRole === 'ADMIN' && (
+            <>
+              <button onClick={handleUndo} className="btn-secondary text-xs text-amber-700 hover:bg-amber-50">
+                <UndoIcon className="w-4 h-4" />
+                Undo Batch
+              </button>
+              <button onClick={handleClear} className="btn-danger text-xs">
+                <TrashIcon className="w-4 h-4" />
+                Clear
+              </button>
+            </>
+          )}
           <button onClick={loadData} className="btn-secondary text-xs" title="Refresh">
             <RefreshCwIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
+
+      {/* Role Tip Banner */}
+      {currentRole === 'FACULTY' && (
+        <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-center gap-2 shadow-sm">
+          <span className="text-base">👨‍🏫</span>
+          <span>Faculty Mode: Filter by your name in the <strong>Filter by Faculty</strong> dropdown below to view your personalized weekly lecture schedule.</span>
+        </div>
+      )}
+      {currentRole === 'STUDENT' && (
+        <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-center gap-2 shadow-sm">
+          <span className="text-base">🎓</span>
+          <span>Student Mode: Filter by your cohort (e.g. <strong>B.Tech IT - Sem 5</strong>) in the <strong>Filter by Student Group</strong> dropdown to view your class schedule.</span>
+        </div>
+      )}
 
       {/* Filter Bar */}
       <div className="app-card p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 no-print text-xs">
