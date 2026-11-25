@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: scheduler-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: university_scheduler
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scheduler-app
+    restart: always
+    depends_on:
+      - mysqldb
+    environment:
+      DB_HOST: mysqldb
+      DB_PORT: 3306
+      DB_NAME: university_scheduler
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    ports:
+      - "8081:8081"
+
+volumes:
+  mysql_data:
