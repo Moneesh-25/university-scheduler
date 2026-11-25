@@ -488,9 +488,11 @@ university-scheduler/
 
 ## 15. Offline Distribution & Archival
 
-A complete, self-contained offline distribution package excluding heavy build directories is available at:
-- **Archive File:** `university-scheduler-v1.0.zip`
-- **Integrity:** Clean Git tree snapshot including backend source, compiled production React assets, database scripts, and full documentation.
+A complete, self-contained offline distribution package excluding heavy build directories is available directly from GitHub or locally:
+
+- 📦 **Direct GitHub Release v1.0.0 ZIP**: [Download v1.0.0.zip](https://github.com/Moneesh-25/university-scheduler/archive/refs/tags/v1.0.0.zip)
+- 📦 **Latest Main Branch ZIP**: [Download main.zip](https://github.com/Moneesh-25/university-scheduler/archive/refs/heads/main.zip)
+- 💾 **Local Offline Archive:** [`university-scheduler-v1.0.zip`](file:///C:/Users/Moneesh%20B/.gemini/antigravity/scratch/university-scheduler-v1.0.zip) (571 KB, clean Git snapshot including backend source, compiled production React assets, database scripts, and full documentation).
 
 ---
 
