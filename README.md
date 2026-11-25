@@ -347,19 +347,47 @@ Open your web browser and navigate to:
 
 ---
 
-## 10. Role-Based Login Credentials
+## 10. Role-Based Persona Switching (RBAC) & User Experience
 
-The application provides a role-switcher for administrative demonstrations:
+The application features an interactive **Top-Bar Role Persona Switcher** that instantly reconfigures the user interface, sidebar navigation, and authorized workflows without requiring logout/login re-authentication:
 
-| Role | Username | Password | Permitted Actions |
-|---|---|---|---|
-| **Administrator** | `admin@university.edu` | `admin123` | Full access: CRUD, Timetable generation, Exam generation, Rollback |
-| **Faculty Member** | `ramanathan@university.edu` | `faculty123` | View assigned courses, personal timetable, invigilation duties |
-| **Student** | `student@university.edu` | `student123` | View group timetable, examination schedule, room locations |
+```
+[ Active Persona: Administrator (Full Control) ]  --> Switch to: [ Faculty ] [ Student ]
+```
+
+| Role Persona | Target Audience | Accessible Modules & Permissions |
+|---|---|---|
+| 👑 **Administrator** | Deans, HODs, Scheduling Officers | Full access: CRUD on all resources, CSP Timetable Generator, Welsh-Powell Solver, Exam Scheduler, Conflict Scanner, Rollback Undo, Concurrency Engine, Algorithm Analytics. |
+| 👨‍🏫 **Faculty Member** | Professors, Teaching Staff | Personalized view: **My Teaching Schedule** (filtered weekly grid), **Invigilation Duties** (allocated exam supervision slots), Teaching Workload breakdown, and Schedule Export. |
+| 🎓 **Student** | Enrolled Undergrads / Postgrads | Read-only view: **Weekly Class Timetable** (cohort matrix), **Examination Schedule** (datesheet with hall & seat info), Clean Print / PDF download. |
 
 ---
 
-## 11. REST API Endpoint Reference
+## 11. Core Platform Capabilities & User Workflows
+
+### A. Interactive Weekly Timetable Grid
+- **Dynamic Perspective Lenses**: Filter by **Student Group** (cohort schedule), **Faculty** (instructor schedule), or **Classroom** (facility occupancy).
+- **Color-Coded Course Badges**: Instant visual identification of lecture sessions, course codes, instructors, and room numbers.
+- **Transactional Undo Rollback**: Made possible by the thread-safe `ConcurrentScheduleStack`. If an administrator generates a new schedule and is unsatisfied with the workload spread, clicking **"Undo Last Batch"** immediately rolls back to the prior schedule state without database corruption.
+- **A4 Print & PDF View**: Custom `@media print` CSS styling formats the timetable into a clean, presentation-ready university document for printing or PDF export.
+- **CSV Data Export**: One-click download of the active schedule for institutional record-keeping and external ERP integration.
+
+### B. Intelligent Examination Scheduler
+- **Student Exam Spacing**: Prevents exam fatigue by enforcing a minimum gap (configurable from 1 to 5 days) between exams for the same cohort.
+- **Seating Capacity Enforcement**: Validates that examination halls have sufficient seating capacity to accommodate the candidate cohort with examination separation.
+- **Faculty Invigilator Load Balancing**: Maintains an atomic duty tracker (`invigilatorDutyCounts`) across all faculty members. For each examination session, the engine assigns available faculty who currently have the **lowest assigned invigilation count**, ensuring equitable duty distribution across the department.
+
+### C. Automated Hard Constraint Scanner
+- Rigorous real-time audit across all four fundamental hard constraints:
+  - $\mathcal{H}_1$: Faculty double-booking clash detection.
+  - $\mathcal{H}_2$: Student group simultaneous class overlap detection.
+  - $\mathcal{H}_3$: Classroom physical double-booking detection.
+  - $\mathcal{H}_4$: Room capacity deficit and missing laboratory hardware mismatch.
+- Visual status indicators: Displays green shield when 0 conflicts are detected; provides pinpointed red alert cards with automated remediation recommendations if conflicts are introduced.
+
+---
+
+## 12. REST API Endpoint Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -388,7 +416,7 @@ The application provides a role-switcher for administrative demonstrations:
 
 ---
 
-## 12. Automated JUnit 5 Test Suite
+## 13. Automated JUnit 5 Test Suite
 
 The project includes 15 automated test cases validating constraints, algorithms, and concurrency:
 
@@ -419,6 +447,50 @@ cd university-scheduler\backend
    - `testMultiThreadedThreadSafety()`: Stresses queue with concurrent producer and consumer threads.
 6. **`ConcurrentStackTest`**:
    - `testConcurrentPushAndPop()`: Validates thread-safe rollback stack under `ReentrantReadWriteLock`.
+
+---
+
+## 14. Project Directory Structure
+
+```
+university-scheduler/
+├── backend/                              # Spring Boot 3.3.5 / Java 21 Application
+│   ├── src/main/java/com/university/scheduler/
+│   │   ├── algorithm/                    # Algorithmic Scheduling Engines
+│   │   │   ├── csp/                      # Backtracking CSP with MRV, Degree & LCV
+│   │   │   ├── graph/                    # Welsh-Powell Graph Coloring
+│   │   │   └── exam/                     # Examination Engine with Invigilation Balancing
+│   │   ├── concurrency/                  # Concurrent Data Structures
+│   │   │   ├── BoundedTaskQueue.java     # Thread-safe queue (ReentrantLock + Conditions)
+│   │   │   └── ConcurrentScheduleStack.java # Lock-free/ReadWriteLock schedule rollback
+│   │   ├── controller/                   # 12 REST API Controllers
+│   │   ├── entity/                       # 10 Normalized JPA Entities (3NF)
+│   │   ├── repository/                   # Spring Data Repositories
+│   │   ├── service/                      # Business & Scheduling Services
+│   │   └── config/                       # DataInitializer & WebMvc Configuration
+│   ├── src/test/java/                    # 15 Automated JUnit 5 & Mockito Unit Tests
+│   └── pom.xml                           # Maven Dependencies & Compiler Flags
+├── frontend/                             # React 18 SPA (Vite + Tailwind CSS)
+│   ├── src/
+│   │   ├── components/                   # UI Modules (Navbar, Sidebar, Icons)
+│   │   ├── pages/                        # 13 Application Views (Dashboard, Timetable, Exams...)
+│   │   ├── services/                     # Axios REST Client & API Connectors
+│   │   └── App.jsx                       # Root Component with Role-Based Persona State
+│   ├── package.json                      # Frontend NPM Dependencies
+│   └── vite.config.js                    # Vite Configuration with Backend Proxy
+├── database/                             # Database Automation Scripts
+│   ├── schema.sql                        # Clean 3NF MySQL Database Schema DDL
+│   └── data.sql                          # Comprehensive Realistic Academic Seed Data
+└── README.md                             # Complete System Documentation
+```
+
+---
+
+## 15. Offline Distribution & Archival
+
+A complete, self-contained offline distribution package excluding heavy build directories is available at:
+- **Archive File:** `university-scheduler-v1.0.zip`
+- **Integrity:** Clean Git tree snapshot including backend source, compiled production React assets, database scripts, and full documentation.
 
 ---
 
